@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>УНО ТЕАТР</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0b0204;
+            color: #fff;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .cinzel-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Red Felt Table Surface */
+        .poker-table {
+            background: radial-gradient(ellipse at center, #8a0f1a 0%, #4a030a 70%, #200104 100%);
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9), 0 0 50px rgba(0, 0, 0, 0.8);
+            border: 12px solid #2d0b0e;
+        }
+
+        /* Animated Full Theater Curtains */
+        .curtain-panel {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 50vw;
+            z-index: 100;
+            background: linear-gradient(90deg, 
+                #1a0002 0%, 
+                #5c060e 15%, 
+                #8b0a15 35%, 
+                #3a0207 50%, 
+                #8b0a15 65%, 
+                #4a0309 85%, 
+                #1a0002 100%);
+            background-size: 80px 100%;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+            pointer-events: none;
+        }
+        .curtain-left-panel {
+            left: 0;
+            border-right: 4px solid #d4af37;
+            transform: translateX(-100%);
+        }
+        .curtain-right-panel {
+            right: 0;
+            border-left: 4px solid #d4af37;
+            transform: translateX(100%);
+        }
+
+        /* Closed Curtains State */
+        .curtains-closed .curtain-left-panel {
+            transform: translateX(0);
+        }
+        .curtains-closed .curtain-right-panel {
+            transform: translateX(0);
+        }
+
+        .curtain-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            z-index: 21;
+            pointer-events: none;
+            background: linear-gradient(180deg, #5c060e 0%, #8b0a15 50%, #3a0207 85%, transparent 100%);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            border-bottom: 2px solid #d4af37;
+        }
+
+        /* UNO Card Styles */
+        .uno-card {
+            width: 90px;
+            height: 135px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5), 0 0 0 2px #ffffff;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+            position: relative;
+            cursor: pointer;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        @media (min-width: 768px) {
+            .uno-card {
+                width: 105px;
+                height: 155px;
+            }
+        }
+
+        .uno-card:hover {
+            transform: translateY(-18px) scale(1.08);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(212, 175, 55, 0.8);
+            z-index: 30;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-oval {
+            position: absolute;
+            width: 110%;
+            height: 70%;
+            background: #ffffff;
+            border-radius: 50%;
+            top: 15%;
+            left: -5%;
+            transform: rotate(-25deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #111 0%, #222 50%, #000 100%);
+            border: 2px solid #d4af37;
+        }
+
+        /* Colors & Special Wild Colorful Gradient */
+        .bg-uno-red { background: linear-gradient(135deg, #ff3b30 0%, #c70000 100%); }
+        .bg-uno-blue { background: linear-gradient(135deg, #007aff 0%, #0040aa 100%); }
+        .bg-uno-green { background: linear-gradient(135deg, #34c759 0%, #088020 100%); }
+        .bg-uno-yellow { background: linear-gradient(135deg, #ffcc00 0%, #d49000 100%); }
+        
+        /* Vibrant 4-color segmented wild card background */
+        .bg-uno-wild { 
+            background: conic-gradient(from 45deg, #ff3b30 0deg 90deg, #007aff 90deg 180deg, #34c759 180deg 270deg, #ffcc00 270deg 360deg);
+        }
+
+        .text-uno-red { color: #e60000; }
+        .text-uno-blue { color: #0055ff; }
+        .text-uno-green { color: #009926; }
+        .text-uno-yellow { color: #e6a100; }
+
+        /* Stage Spotlight Effect */
+        .spotlight {
+            position: absolute;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(255, 235, 175, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Animated dealing cards placeholder */
+        .dealing-card {
+            position: fixed;
+            z-index: 100;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+        }
+
+        /* Glow effects */
+        .active-turn {
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.9);
+            border-color: #ffd700 !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.5); border-radius: 3px; }
+    </style>
+</head>
+<body id="game-body" class="h-screen w-screen flex flex-col justify-between items-center relative overflow-hidden curtains-closed">
+
+    <!-- Full Animated Curtains -->
+    <div class="curtain-panel curtain-left-panel"></div>
+    <div class="curtain-panel curtain-right-panel"></div>
+    <div class="curtain-top"></div>
+    <div class="spotlight"></div>
+
+    <!-- Main Navigation / Menu View -->
+    <div id="main-menu" class="fixed inset-0 z-40 flex flex-col items-center justify-center bg-black/80 backdrop-blur-lg transition-opacity duration-500">
+        <div class="text-center max-w-md px-6">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full border-2 border-amber-400 flex items-center justify-center bg-black/70 shadow-2xl gold-glow">
+                <i class="fa-solid fa-masks-theater text-amber-400 text-4xl"></i>
+            </div>
+            <h1 data-i18n="title" class="cinzel-font text-4xl md:text-5xl font-black tracking-wider text-amber-300 drop-shadow-lg mb-2">УНО ТЕАТР</h1>
+            <p data-i18n="subtitleFull" class="text-amber-100/70 text-sm mb-6">Театральная классика за красным сукном</p>
+
+            <!-- Wallet Banner -->
+            <div class="bg-amber-950/60 border border-amber-500/40 rounded-full px-6 py-2 w-max mx-auto mb-8 flex items-center space-x-2">
+                <i class="fa-solid fa-coins text-amber-400 text-lg"></i>
+                <span id="user-coins" class="font-bold text-amber-300 text-lg">150</span>
+                <span data-i18n="coins" class="text-xs text-amber-200/80">монет</span>
+            </div>
+
+            <!-- Menu Navigation Buttons -->
+            <div class="flex flex-col space-y-4">
+                <button onclick="triggerTransition(() => startGameFromMenu())" class="w-full bg-gradient-to-r from-red-700 via-amber-600 to-red-700 hover:from-red-600 hover:to-amber-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-xl border border-amber-400 transform hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-3 text-lg">
+                    <i class="fa-solid fa-play"></i>
+                    <span data-i18n="playBtn">ИГРАТЬ</span>
+                </button>
+                <button onclick="triggerTransition(() => openStore())" class="w-full bg-zinc-900/90 hover:bg-zinc-800 text-amber-300 border border-amber-500/50 font-bold py-3.5 px-8 rounded-xl shadow-lg transform hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-3 text-base">
+                    <i class="fa-solid fa-store text-amber-400"></i>
+                    <span data-i18n="storeBtn">МАГАЗИН</span>
+                </button>
+                <button onclick="triggerTransition(() => openSettings())" class="w-full bg-zinc-900/90 hover:bg-zinc-800 text-amber-300 border border-amber-500/50 font-bold py-3.5 px-8 rounded-xl shadow-lg transform hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-3 text-base">
+                    <i class="fa-solid fa-gear text-amber-400"></i>
+                    <span data-i18n="settingsBtn">НАСТРОЙКИ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Modal -->
+    <div id="store-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="bg-zinc-900 border-2 border-amber-500/60 p-6 rounded-2xl max-w-md w-full text-center shadow-2xl relative">
+            <button onclick="closeStore()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 data-i18n="storeTitle" class="cinzel-font text-2xl font-bold text-amber-300 mb-1">Театральная Лавка</h2>
+            <p data-i18n="storeSubtitleFull" class="text-xs text-gray-400 mb-4">Покупайте новые рубашки карт за монеты</p>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Store Item 1 -->
+                <div class="bg-zinc-800 border border-amber-500/30 rounded-xl p-3 flex flex-col items-center">
+                    <div class="w-16 h-24 card-back rounded mb-2 border border-amber-400"></div>
+                    <span data-i18n="classicSkin" class="text-xs font-bold text-amber-200 mb-2">Классик Голд</span>
+                    <button data-i18n="equipped" class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1.5 rounded-full border border-amber-400 font-bold">Выбрано</button>
+                </div>
+                <!-- Store Item 2 -->
+                <div class="bg-zinc-800 border border-amber-500/20 rounded-xl p-3 flex flex-col items-center">
+                    <div data-i18n="royalTheme" class="w-16 h-24 rounded mb-2 border border-purple-500 bg-gradient-to-tr from-purple-900 to-indigo-900 flex items-center justify-center text-amber-300 text-xs">Королевский</div>
+                    <span data-i18n="royalSkin" class="text-xs font-bold text-amber-200 mb-2">Королевский Бархат</span>
+                    <button onclick="buySkin('royal', 100)" class="bg-gradient-to-r from-amber-600 to-yellow-500 text-black text-xs px-3 py-1.5 rounded-full font-bold hover:scale-105 transition flex items-center space-x-1">
+                        <i class="fa-solid fa-coins"></i>
+                        <span>100</span>
+                    </button>
+                </div>
+            </div>
+            <button onclick="triggerTransition(() => closeStore())" data-i18n="backToMenu" class="w-full bg-zinc-800 text-amber-300 py-2 rounded-xl text-sm font-semibold border border-amber-500/30">Назад в Меню</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="bg-zinc-900 border border-amber-500/40 p-6 rounded-2xl max-w-sm w-full text-center shadow-2xl relative">
+            <button onclick="closeSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 data-i18n="settingsTitle" class="cinzel-font text-2xl font-bold text-amber-300 mb-4">Настройки</h2>
+            
+            <div class="space-y-4 mb-6 text-left">
+                <!-- Language Selector -->
+                <div>
+                    <label data-i18n="languageLabel" class="text-sm text-gray-300 block mb-1.5 font-medium">Язык / Мова / Language</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="changeLanguage('uk')" id="lang-btn-uk" class="py-2 rounded-lg bg-zinc-800 text-xs font-bold border border-amber-500/30 hover:bg-zinc-700 transition">UA 🇺🇦</button>
+                        <button onclick="changeLanguage('ru')" id="lang-btn-ru" class="py-2 rounded-lg bg-zinc-800 text-xs font-bold border border-amber-500/30 hover:bg-zinc-700 transition">RU 🇷🇺</button>
+                        <button onclick="changeLanguage('en')" id="lang-btn-en" class="py-2 rounded-lg bg-zinc-800 text-xs font-bold border border-amber-500/30 hover:bg-zinc-700 transition">EN 🇬🇧</button>
+                    </div>
+                </div>
+
+                <!-- Music Setting -->
+                <div class="flex justify-between items-center">
+                    <span data-i18n="musicToggleLabel" class="text-sm text-gray-300">Классическая Музыка</span>
+                    <input type="checkbox" id="music-setting" checked onchange="toggleAudioSetting()" class="w-5 h-5 accent-amber-500 cursor-pointer">
+                </div>
+
+                <!-- Music Volume Control Slider -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span data-i18n="musicVolumeLabel" class="text-sm text-gray-300">Громкость музыки</span>
+                        <span id="volume-val" class="text-xs text-amber-300 font-bold">35%</span>
+                    </div>
+                    <input type="range" id="music-volume" min="0" max="100" value="35" oninput="changeMusicVolume(this.value)" class="w-full accent-amber-500 cursor-pointer bg-zinc-800 rounded-lg">
+                </div>
+
+                <!-- Sound Effects Setting -->
+                <div class="flex justify-between items-center">
+                    <span data-i18n="sfxToggleLabel" class="text-sm text-gray-300">Звуковые Эффекты</span>
+                    <input type="checkbox" id="sfx-setting" checked class="w-5 h-5 accent-amber-500 cursor-pointer">
+                </div>
+            </div>
+
+            <button onclick="triggerTransition(() => closeSettings())" data-i18n="closeBtn" class="w-full bg-zinc-800 text-amber-300 py-2.5 rounded-xl text-sm font-semibold border border-amber-500/30 hover:bg-zinc-700 transition">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Gameplay Header -->
+    <header id="game-header" class="w-full max-w-5xl px-6 pt-4 z-30 flex justify-between items-center opacity-0 pointer-events-none transition-opacity duration-500">
+        <div class="flex items-center space-x-3">
+            <button onclick="triggerTransition(() => returnToMainMenu())" class="w-10 h-10 rounded-full border-2 border-amber-400 flex items-center justify-center bg-black/60 shadow-lg hover:bg-amber-500/20 transition">
+                <i class="fa-solid fa-arrow-left text-amber-400 text-lg"></i>
+            </button>
+            <div>
+                <h1 data-i18n="title" class="cinzel-font text-xl md:text-2xl font-bold tracking-wider text-amber-300 drop-shadow-md">УНО ТЕАТР</h1>
+                <p data-i18n="subhead" class="text-xs text-amber-100/70">Театральная дуэль</p>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex items-center space-x-3 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-amber-500/30">
+            <button id="music-toggle" data-i18n-title="musicTitle" class="text-amber-300 hover:text-amber-100 transition p-2 focus:outline-none" title="Включить/Выключить Музыку">
+                <i id="music-icon" class="fa-solid fa-music text-lg"></i>
+            </button>
+            <div class="h-4 w-[1px] bg-amber-500/30"></div>
+            <button id="restart-btn" data-i18n-title="restartTitle" class="text-amber-300 hover:text-amber-100 transition p-2 focus:outline-none" title="Перезапустить игру">
+                <i class="fa-solid fa-rotate-right text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Poker Table Container -->
+    <main id="game-table" class="relative w-[94vw] max-w-5xl h-[72vh] my-auto rounded-[100px] poker-table flex flex-col justify-between items-center p-6 z-10 opacity-0 pointer-events-none transition-opacity duration-500">
+        
+        <!-- Opponent (Bot) Area -->
+        <div class="w-full flex flex-col items-center">
+            <div id="bot-status-card" class="bg-black/60 backdrop-blur-md border border-amber-500/40 rounded-xl px-5 py-2 flex items-center space-x-3 shadow-xl mb-2 transition-all duration-300">
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-900 to-indigo-600 border border-amber-300 flex items-center justify-center text-amber-200">
+                        <i class="fa-solid fa-robot text-lg"></i>
+                    </div>
+                    <span id="bot-uno-badge" class="hidden absolute -top-2 -right-2 bg-red-600 text-white font-black text-[10px] px-1.5 py-0.5 rounded-full border border-white animate-bounce">UNO!</span>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span data-i18n="botName" class="font-bold text-sm text-amber-200">Маэстро Бот</span>
+                        <span id="bot-turn-indicator" data-i18n="botThinking" class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40 opacity-0">Ходит...</span>
+                    </div>
+                    <div class="text-xs text-gray-300"><span data-i18n="cardsCount">Карт:</span> <span id="bot-card-count" class="font-bold text-amber-400">7</span></div>
+                </div>
+            </div>
+
+            <!-- Bot Hand View -->
+            <div id="bot-hand" class="flex justify-center items-center -space-x-8 md:-space-x-10 h-24 overflow-visible py-2">
+                <!-- Dynamic cards populated by JS -->
+            </div>
+        </div>
+
+        <!-- Center Table: Draw Deck & Discard Pile -->
+        <div class="flex items-center justify-center space-x-8 my-auto relative">
+            
+            <!-- Draw Deck -->
+            <div id="draw-deck" class="relative group cursor-pointer">
+                <div class="uno-card card-back shadow-2xl flex flex-col justify-center items-center transform group-hover:scale-105 transition-all">
+                    <div class="text-amber-400 text-2xl font-bold cinzel-font">UNO</div>
+                    <div data-i18n="drawText" class="text-[10px] text-amber-200/60 mt-1">Взять</div>
+                </div>
+                <!-- Deck stack depth effect -->
+                <div class="absolute top-1 left-1 w-full h-full card-back rounded-lg -z-10 border border-amber-500/30"></div>
+                <div class="absolute top-2 left-2 w-full h-full card-back rounded-lg -z-20 border border-amber-500/20"></div>
+            </div>
+
+            <!-- Discard Pile Slot -->
+            <div class="relative min-w-[90px] min-h-[135px] md:min-w-[105px] md:min-h-[155px]">
+                <div id="discard-pile" class="relative">
+                    <!-- Top card rendered here -->
+                </div>
+            </div>
+
+            <!-- Direction & Color Indicator Indicator -->
+            <div id="color-indicator" class="w-12 h-12 rounded-full border-2 border-white/80 shadow-2xl flex items-center justify-center transition-all duration-500 bg-gray-800">
+                <i id="color-indicator-icon" class="fa-solid fa-crown text-amber-300 text-lg"></i>
+            </div>
+        </div>
+
+        <!-- Player Area -->
+        <div class="w-full flex flex-col items-center">
+            
+            <!-- Player Info & UNO Button -->
+            <div class="w-full max-w-lg flex justify-between items-center mb-2 px-4">
+                <div id="player-status-card" class="bg-black/60 backdrop-blur-md border border-amber-500/40 rounded-xl px-5 py-2 flex items-center space-x-3 shadow-xl transition-all duration-300">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-700 to-red-600 border border-amber-300 flex items-center justify-center text-amber-100">
+                        <i class="fa-solid fa-user text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span data-i18n="playerYou" class="font-bold text-sm text-amber-200">Вы (Игрок)</span>
+                            <span id="player-turn-indicator" data-i18n="yourTurn" class="text-[10px] bg-green-500/20 text-green-300 px-2 py-0.5 rounded-full border border-green-500/40">Ваш Ход</span>
+                        </div>
+                        <div class="text-xs text-gray-300"><span data-i18n="cardsCount">Карт:</span> <span id="player-card-count" class="font-bold text-amber-400">7</span></div>
+                    </div>
+                </div>
+
+                <!-- UNO Shout Button -->
+                <button id="uno-btn" class="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-black px-6 py-2.5 rounded-full shadow-lg border-2 border-amber-300 transform active:scale-95 transition-all flex items-center space-x-2 group">
+                    <i class="fa-solid fa-bullhorn text-amber-200 group-hover:rotate-12 transition-transform"></i>
+                    <span class="tracking-widest">УНО!</span>
+                </button>
+            </div>
+
+            <!-- Player Hand Area -->
+            <div id="player-hand" class="flex justify-center items-center -space-x-6 sm:-space-x-8 md:-space-x-10 h-36 max-w-full overflow-x-auto overflow-y-visible px-8 py-4">
+                <!-- Cards dynamically injected -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Wild Color Picker Modal -->
+    <div id="color-picker-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-zinc-900 border-2 border-amber-500/60 p-6 rounded-2xl max-w-xs w-full text-center shadow-2xl">
+            <h3 data-i18n="selectColorTitle" class="cinzel-font text-xl font-bold text-amber-300 mb-2">Выберите цвет</h3>
+            <p data-i18n="selectColorSub" class="text-xs text-gray-400 mb-6">Какого цвета должна стать следующая карта?</p>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="selectWildColor('red')" data-i18n="colorRed" class="h-16 rounded-xl bg-uno-red hover:opacity-90 border-2 border-white/50 flex items-center justify-center text-white font-bold text-lg shadow-lg transform hover:scale-105 transition">Красный</button>
+                <button onclick="selectWildColor('blue')" data-i18n="colorBlue" class="h-16 rounded-xl bg-uno-blue hover:opacity-90 border-2 border-white/50 flex items-center justify-center text-white font-bold text-lg shadow-lg transform hover:scale-105 transition">Синий</button>
+                <button onclick="selectWildColor('green')" data-i18n="colorGreen" class="h-16 rounded-xl bg-uno-green hover:opacity-90 border-2 border-white/50 flex items-center justify-center text-white font-bold text-lg shadow-lg transform hover:scale-105 transition">Зеленый</button>
+                <button onclick="selectWildColor('yellow')" data-i18n="colorYellow" class="h-16 rounded-xl bg-uno-yellow hover:opacity-90 border-2 border-white/50 flex items-center justify-center text-zinc-900 font-bold text-lg shadow-lg transform hover:scale-105 transition">Желтый</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Overlay Modal (Win/Lose/Notice) -->
+    <div id="msg-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-zinc-900 border border-amber-500/40 p-6 rounded-2xl max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
+            <div id="msg-icon-container" class="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl text-amber-300">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 id="msg-title" class="cinzel-font text-2xl font-bold text-amber-300 mb-1">Победа!</h2>
+            <p id="msg-body" class="text-xs text-gray-300 mb-3">Вы великолепно сыграли партию!</p>
+            <div class="text-amber-400 font-bold text-sm mb-5 flex items-center justify-center space-x-2">
+                <span data-i18n="reward">Награда:</span>
+                <i class="fa-solid fa-coins"></i>
+                <span id="win-coins-amount">+50</span>
+            </div>
+            
+            <div class="flex flex-col space-y-2">
+                <button onclick="triggerTransition(() => restartGame())" data-i18n="playAgain" class="w-full bg-gradient-to-r from-red-700 via-amber-600 to-red-700 hover:from-red-600 hover:to-amber-500 text-white font-bold py-2.5 rounded-xl shadow-lg border border-amber-400/50 transform active:scale-95 transition">
+                    Сыграть Снова
+                </button>
+                <button onclick="triggerTransition(() => returnToMainMenuFromModal())" data-i18n="mainMenuBtn" class="w-full bg-zinc-800 hover:bg-zinc-700 text-amber-300 border border-amber-500/30 font-semibold py-2 rounded-xl shadow-md active:scale-95 transition text-sm">
+                    В Главное Меню
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Banner -->
+    <div id="toast-notification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-zinc-900/90 border border-amber-500/50 text-amber-200 px-6 py-3 rounded-full shadow-2xl backdrop-blur-md text-sm font-semibold transition-all duration-300 transform opacity-0 translate-y-4 pointer-events-none flex items-center space-x-2">
+        <i class="fa-solid fa-circle-info text-amber-400"></i>
+        <span id="toast-text" data-i18n="welcomeToast">Добро пожаловать за стол!</span>
+    </div>
+
+    <!-- Classical Background Audio -->
+    <audio id="bgm-player" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=classical-melody-113824.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const translations = {
+            ru: {
+                title: "УНО ТЕАТР",
+                subtitle: "Театральная классика за красным сукном",
+                subhead: "Театральная дуэль",
+                playBtn: "ИГРАТЬ",
+                storeBtn: "МАГАЗИН",
+                settingsBtn: "НАСТРОЙКИ",
+                coins: "монет",
+                storeTitle: "Театральная Лавка",
+                storeSubtitle: "Покупайте новые рубашки карт за монеты",
+                equipped: "Выбрано",
+                buy: "Купить",
+                backToMenu: "Назад в Меню",
+                settingsTitle: "Настройки",
+                languageLabel: "Язык / Мова / Language",
+                musicToggleLabel: "Классическая Музыка",
+                musicVolumeLabel: "Громкость музыки",
+                sfxToggleLabel: "Звуковые Эффекты",
+                closeBtn: "Закрыть",
+                botName: "Маэстро Бот",
+                botThinking: "Ходит...",
+                cardsCount: "Карт:",
+                playerYou: "Вы (Игрок)",
+                yourTurn: "Ваш Ход",
+                unoBtn: "УНО!",
+                selectColorTitle: "Выберите цвет",
+                selectColorSub: "Какого цвета должна стать следующая карта?",
+                colorRed: "Красный",
+                colorBlue: "Синий",
+                colorGreen: "Зеленый",
+                colorYellow: "Желтый",
+                victoryTitle: "Победа!",
+                victorySub: "Вы великолепно сыграли партию!",
+                defeatTitle: "Поражение",
+                defeatSub: "К сожалению, Маэстро Бот переиграл вас.",
+                reward: "Награда:",
+                playAgain: "Сыграть Снова",
+                mainMenuBtn: "В Главное Меню",
+                drawText: "Взять",
+                musicOff: "Музыка выключена",
+                musicOn: "Играет классическая музыка",
+                dealing: "Сдаем карты...",
+                gameStarted: "Игра началась! Ваш ход.",
+                notValidCard: "Эта карта не подходит!",
+                unoPenalty: "Вы не сказали УНО! Штраф +2 карты.",
+                botSkips: "Бот пропускает ход!",
+                playerSkips: "Вы пропускаете ход!",
+                botTakes2: "Бот берет 2 карты!",
+                playerTakes2: "Вы берете 2 карты!",
+                botTakes4: "Бот берет 4 карты!",
+                playerTakes4: "Вы берете 4 карты!",
+                botSaidUno: "Маэстро Бот кричит УНО!",
+                botDrewCard: "Бот берет карту из колоды",
+                deckReshuffled: "Колода перемешана",
+                drewValidCard: "Вы взяли подходящую карту!",
+                drewInvalidCard: "Взятая карта не подходит. Ход переходит боту.",
+                unoShoutToast: "Вы громко крикнули УНО!",
+                unoConditionToast: "УНО можно нажимать только при 1-2 картах!",
+                subtitleFull: "Театральная классика за красным сукном",
+                storeSubtitleFull: "Покупайте новые рубашки карт за монеты",
+                classicSkin: "Классик Голд",
+                royalSkin: "Королевский Бархат",
+                royalTheme: "Королевский",
+                buySkinSuccess: "Рубашка карт успешно куплена!",
+                notEnoughCoins: "Недостаточно монет!",
+                welcomeToast: "Добро пожаловать за стол!",
+                musicTitle: "Включить/Выключить Музыку",
+                restartTitle: "Перезапустить игру",
+                selectedColor: "Выбран цвет: {color}",
+                botSelectedColor: "Бот выбрал цвет: {color}",
+                playerWinTitle: "Вы Победили!",
+                playerWinBody: "Браво! Вы одержали триумфальную победу за театральным столом!",
+                botWinTitle: "Бот Победил",
+                botWinBody: "К сожалению, Маэстро Бот переиграл вас в этой партии.",
+                playAgain: "Сыграть Снова",
+                mainMenuBtn: "В Главное Меню"
+            },
+            uk: {
+                title: "УНО ТЕАТР",
+                subtitle: "Театральна класика за червоною завісою",
+                subhead: "Театральна дуель",
+                playBtn: "ГРАТИ",
+                storeBtn: "МАГАЗИН",
+                settingsBtn: "НАЛАШТУВАННЯ",
+                coins: "монет",
+                storeTitle: "Театральна Крамниця",
+                storeSubtitle: "Купуйте нові сорочки карт за монети",
+                equipped: "Обрано",
+                buy: "Купити",
+                backToMenu: "Назад у Меню",
+                settingsTitle: "Налаштування",
+                languageLabel: "Язык / Мова / Language",
+                musicToggleLabel: "Класична Музика",
+                musicVolumeLabel: "Гучність музики",
+                sfxToggleLabel: "Звукові Ефекти",
+                closeBtn: "Закрити",
+                botName: "Маестро Бот",
+                botThinking: "Хід...",
+                cardsCount: "Карт:",
+                playerYou: "Ви (Гравець)",
+                yourTurn: "Ваш Хід",
+                unoBtn: "УНО!",
+                selectColorTitle: "Оберіть колір",
+                selectColorSub: "Якого кольору має стати наступна карта?",
+                colorRed: "Червоний",
+                colorBlue: "Синій",
+                colorGreen: "Зелений",
+                colorYellow: "Жовтий",
+                victoryTitle: "Перемога!",
+                victorySub: "Ви чудово зіграли партію!",
+                defeatTitle: "Поразка",
+                defeatSub: "На жаль, Маестро Бот переграв вас.",
+                reward: "Нагорода:",
+                playAgain: "Зіграти Знову",
+                mainMenuBtn: "У Головне Меню",
+                drawText: "Взяти",
+                musicOff: "Музику вимкнено",
+                musicOn: "Грає класична музика",
+                dealing: "Роздаємо карти...",
+                gameStarted: "Гра почалася! Ваш хід.",
+                notValidCard: "Ця карта не підходить!",
+                unoPenalty: "Ви не сказали УНО! Штраф +2 карти.",
+                botSkips: "Бот пропускає хід!",
+                playerSkips: "Ви пропускаєте хід!",
+                botTakes2: "Бот бере 2 карти!",
+                playerTakes2: "Ви берете 2 карти!",
+                botTakes4: "Бот бере 4 карти!",
+                playerTakes4: "Ви берете 4 карти!",
+                botSaidUno: "Маестро Бот вигукує УНО!",
+                botDrewCard: "Бот бере карту з колоди",
+                deckReshuffled: "Колоду перемішано",
+                drewValidCard: "Ви взяли відповідну карту!",
+                drewInvalidCard: "Взята карта не підходить. Хід переходить боту.",
+                unoShoutToast: "Ви голосно вигукнули УНО!",
+                unoConditionToast: "УНО можна натискати тільки при 1-2 картах!",
+                subtitleFull: "Театральна класика за червоною завісою",
+                storeSubtitleFull: "Купуйте нові сорочки карт за монети",
+                classicSkin: "Класик Голд",
+                royalSkin: "Королівський Оксамит",
+                royalTheme: "Королівський",
+                buySkinSuccess: "Сорочку карт успішно придбано!",
+                notEnoughCoins: "Недостатньо монет!",
+                welcomeToast: "Ласкаво просимо за стіл!",
+                musicTitle: "Увімкнути/Вимкнути музику",
+                restartTitle: "Перезапустити гру",
+                selectedColor: "Обраний колір: {color}",
+                botSelectedColor: "Бот обрав колір: {color}",
+                playerWinTitle: "Ви перемогли!",
+                playerWinBody: "Браво! Ви здобули тріумфальну перемогу за театральним столом!",
+                botWinTitle: "Бот переміг",
+                botWinBody: "На жаль, Маестро Бот переграв вас у цій партії.",
+                playAgain: "Зіграти знову",
+                mainMenuBtn: "До головного меню"
+            },
+            en: {
+                title: "UNO THEATER",
+                subtitle: "Theater classics behind the red curtain",
+                subhead: "Theater Duel",
+                playBtn: "PLAY",
+                storeBtn: "STORE",
+                settingsBtn: "SETTINGS",
+                coins: "coins",
+                storeTitle: "Theater Shop",
+                storeSubtitle: "Buy new card backs with coins",
+                equipped: "Selected",
+                buy: "Buy",
+                backToMenu: "Back to Menu",
+                settingsTitle: "Settings",
+                languageLabel: "Language / Мова / Язык",
+                musicToggleLabel: "Classical Music",
+                musicVolumeLabel: "Music Volume",
+                sfxToggleLabel: "Sound Effects",
+                closeBtn: "Close",
+                botName: "Maestro Bot",
+                botThinking: "Turn...",
+                cardsCount: "Cards:",
+                playerYou: "You (Player)",
+                yourTurn: "Your Turn",
+                unoBtn: "UNO!",
+                selectColorTitle: "Select Color",
+                selectColorSub: "Which color should the next card be?",
+                colorRed: "Red",
+                colorBlue: "Blue",
+                colorGreen: "Green",
+                colorYellow: "Yellow",
+                victoryTitle: "Victory!",
+                victorySub: "You played a splendid game!",
+                defeatTitle: "Defeat",
+                defeatSub: "Unfortunately, Maestro Bot outplayed you.",
+                reward: "Reward:",
+                playAgain: "Play Again",
+                mainMenuBtn: "To Main Menu",
+                drawText: "Draw",
+                musicOff: "Music Off",
+                musicOn: "Playing Classical Music",
+                dealing: "Dealing cards...",
+                gameStarted: "Game started! Your turn.",
+                notValidCard: "This card cannot be played!",
+                unoPenalty: "You didn't say UNO! Penalty +2 cards.",
+                botSkips: "Bot skips a turn!",
+                playerSkips: "You skip a turn!",
+                botTakes2: "Bot draws 2 cards!",
+                playerTakes2: "You draw 2 cards!",
+                botTakes4: "Bot draws 4 cards!",
+                playerTakes4: "You draw 4 cards!",
+                botSaidUno: "Maestro Bot shouts UNO!",
+                botDrewCard: "Bot draws a card from deck",
+                deckReshuffled: "Deck reshuffled",
+                drewValidCard: "You drew a playable card!",
+                drewInvalidCard: "Drawn card is not playable. Turn passes to bot.",
+                unoShoutToast: "You loudly shouted UNO!",
+                unoConditionToast: "UNO can only be pressed when holding 1-2 cards!",
+                subtitleFull: "Theater classics behind the red curtain",
+                storeSubtitleFull: "Buy new card backs with coins",
+                classicSkin: "Classic Gold",
+                royalSkin: "Royal Velvet",
+                royalTheme: "Royal",
+                buySkinSuccess: "Card back purchased successfully!",
+                notEnoughCoins: "Not enough coins!",
+                welcomeToast: "Welcome to the table!",
+                musicTitle: "Toggle Music",
+                restartTitle: "Restart Game",
+                selectedColor: "Selected color: {color}",
+                botSelectedColor: "Bot selected {color}",
+                playerWinTitle: "You Won!",
+                playerWinBody: "Bravo! You achieved a triumphant victory at the theater table!",
+                botWinTitle: "Bot Won",
+                botWinBody: "Unfortunately, Maestro Bot beat you in this round.",
+                playAgain: "Play Again",
+                mainMenuBtn: "To Main Menu"
+            }
+        };
+
+        
+
+        let currentLang = 'ru';
+        let currentModalKeys = null;
+
+        function changeLanguage(lang) {
+            if (!translations[lang]) return;
+            currentLang = lang;
+            
+            // Update active state of language buttons
+            ['uk', 'ru', 'en'].forEach(l => {
+                const btn = document.getElementById(`lang-btn-${l}`);
+                if (btn) {
+                    if (l === lang) {
+                        btn.className = "py-2 rounded-lg bg-amber-500 text-black text-xs font-bold border border-amber-400 shadow-md transition";
+                    } else {
+                        btn.className = "py-2 rounded-lg bg-zinc-800 text-xs font-bold border border-amber-500/30 hover:bg-zinc-700 transition";
+                    }
+                }
+            });
+
+            // Update DOM text elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (Object.prototype.hasOwnProperty.call(translations[lang], key)) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title');
+                if (Object.prototype.hasOwnProperty.call(translations[lang], key)) {
+                    el.title = translations[lang][key];
+                }
+            });
+            document.documentElement.lang = lang;
+            document.title = translations[lang].title;
+            if (currentModalKeys && !document.getElementById('msg-modal').classList.contains('hidden')) {
+                document.getElementById('msg-title').textContent = translations[lang][currentModalKeys.title];
+                document.getElementById('msg-body').textContent = translations[lang][currentModalKeys.body];
+            }
+        }
+
+        // Apply the default Russian language to the entire interface on startup.
+        document.addEventListener('DOMContentLoaded', () => changeLanguage('ru'));
+
+        function changeMusicVolume(val) {
+            document.getElementById('volume-val').innerText = `${val}%`;
+            if (audio && audio.bgm) {
+                audio.bgm.volume = val / 100;
+            }
+        }
+
+        /* Classical Music & Sound Effects Synthesizer using Audio Element + Web Audio API Fallback */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.isMusicPlaying = false;
+                this.bgm = document.getElementById('bgm-player');
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.2, volume = 0.1) {
+                const sfxEnabled = document.getElementById('sfx-setting').checked;
+                if (!sfxEnabled) return;
+                this.init();
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            playCardSound() {
+                this.playTone(300, 'triangle', 0.08, 0.15);
+            }
+
+            playUnoShout() {
+                this.playTone(523.25, 'triangle', 0.15, 0.2);
+                setTimeout(() => this.playTone(659.25, 'triangle', 0.25, 0.2), 150);
+            }
+
+            playWinSound() {
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 'sine', 0.4, 0.2), idx * 150);
+                });
+            }
+
+            toggleClassicalBGM() {
+                const volInput = document.getElementById('music-volume');
+                const targetVol = volInput ? volInput.value / 100 : 0.35;
+
+                if (this.isMusicPlaying) {
+                    this.bgm.pause();
+                    this.isMusicPlaying = false;
+                    document.getElementById('music-icon').className = 'fa-solid fa-music text-lg text-amber-300';
+                    showToast(translations[currentLang].musicOff);
+                } else {
+                    this.bgm.volume = targetVol;
+                    this.bgm.play().then(() => {
+                        this.isMusicPlaying = true;
+                        document.getElementById('music-icon').className = 'fa-solid fa-volume-high text-lg text-amber-400 animate-pulse';
+                        showToast(translations[currentLang].musicOn);
+                    }).catch(() => {
+                        showToast(translations[currentLang].musicOn);
+                    });
+                }
+            }
+        }
+
+        const audio = new SoundEngine();
+
+        // Game State Variables
+        let userCoins = 150;
+        const COLORS = ['red', 'blue', 'green', 'yellow'];
+        let deck = [];
+        let playerHand = [];
+        let botHand = [];
+        let discardPile = [];
+        let currentColor = '';
+        let currentTurn = 'player';
+        let pendingWildCard = null;
+        let playerSaidUno = false;
+        let botSaidUno = false;
+        let isDealing = false;
+
+        /* Theater Curtain Transition Logic */
+        function triggerTransition(callback) {
+            const body = document.getElementById('game-body');
+            body.classList.add('curtains-closed');
+            
+            setTimeout(() => {
+                if (callback) callback();
+                setTimeout(() => {
+                    body.classList.remove('curtains-closed');
+                }, 400);
+            }, 1200);
+        }
+
+        /* Menu Actions */
+        function startGameFromMenu() {
+            document.getElementById('main-menu').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('game-header').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('game-table').classList.remove('opacity-0', 'pointer-events-none');
+            startNewGame();
+        }
+
+        function returnToMainMenu() {
+            document.getElementById('main-menu').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('game-header').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('game-table').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function returnToMainMenuFromModal() {
+            document.getElementById('msg-modal').classList.add('hidden');
+            returnToMainMenu();
+        }
+
+        function openStore() {
+            document.getElementById('store-modal').classList.remove('hidden');
+        }
+
+        function closeStore() {
+            document.getElementById('store-modal').classList.add('hidden');
+        }
+
+        function openSettings() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function buySkin(skinName, cost) {
+            if (userCoins >= cost) {
+                userCoins -= cost;
+                document.getElementById('user-coins').innerText = userCoins;
+                showToast(translations[currentLang].buySkinSuccess);
+            } else {
+                showToast(translations[currentLang].notEnoughCoins);
+            }
+        }
+
+        function toggleAudioSetting() {
+            const musicEnabled = document.getElementById('music-setting').checked;
+            if (!musicEnabled && audio.isMusicPlaying) {
+                audio.toggleClassicalBGM();
+            } else if (musicEnabled && !audio.isMusicPlaying) {
+                audio.toggleClassicalBGM();
+            }
+        }
+
+        /* UNO Game Core Logic */
+        function buildDeck() {
+            deck = [];
+            for (let color of COLORS) {
+                deck.push({ color, value: '0' });
+                for (let i = 1; i <= 2; i++) {
+                    for (let val of ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'skip', 'reverse', 'draw2']) {
+                        deck.push({ color, value: val });
+                    }
+                }
+            }
+            // Add Wild Cards (Wild color change & Wild +4)
+            for (let i = 0; i < 4; i++) {
+                deck.push({ color: 'wild', value: 'wild' });
+                deck.push({ color: 'wild', value: 'wild4' });
+            }
+            shuffle(deck);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        async function startNewGame() {
+            buildDeck();
+            playerHand = [];
+            botHand = [];
+            discardPile = [];
+            playerSaidUno = false;
+            botSaidUno = false;
+            currentTurn = 'player';
+            isDealing = true;
+
+            updateUI();
+            
+            showToast(translations[currentLang].dealing);
+            
+            const drawDeckEl = document.getElementById('draw-deck');
+            const deckRect = drawDeckEl.getBoundingClientRect();
+
+            for (let i = 0; i < 7; i++) {
+                await animateCardDeal(deckRect, 'player');
+                playerHand.push(deck.pop());
+                audio.playCardSound();
+                updateUI();
+
+                await animateCardDeal(deckRect, 'bot');
+                botHand.push(deck.pop());
+                audio.playCardSound();
+                updateUI();
+            }
+
+            let firstCard = deck.pop();
+            while (firstCard.color === 'wild') {
+                deck.unshift(firstCard);
+                shuffle(deck);
+                firstCard = deck.pop();
+            }
+            discardPile.push(firstCard);
+            currentColor = firstCard.color;
+
+            isDealing = false;
+            showToast(translations[currentLang].gameStarted);
+            updateUI();
+        }
+
+        function animateCardDeal(startRect, target) {
+            return new Promise((resolve) => {
+                const tempCard = document.createElement('div');
+                tempCard.className = 'uno-card card-back dealing-card';
+                tempCard.style.left = `${startRect.left}px`;
+                tempCard.style.top = `${startRect.top}px`;
+                document.body.appendChild(tempCard);
+
+                const targetEl = target === 'player' ? document.getElementById('player-hand') : document.getElementById('bot-hand');
+                const targetRect = targetEl.getBoundingClientRect();
+
+                setTimeout(() => {
+                    tempCard.style.left = `${targetRect.left + targetRect.width / 2 - 45}px`;
+                    tempCard.style.top = `${targetRect.top}px`;
+                    tempCard.style.transform = 'scale(0.6) rotate(360deg)';
+                    tempCard.style.opacity = '0.5';
+                }, 20);
+
+                setTimeout(() => {
+                    document.body.removeChild(tempCard);
+                    resolve();
+                }, 250);
+            });
+        }
+
+        function createCardElement(card, isInteractive = true, onClick = null) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `uno-card ${getCardBgClass(card.color)}`;
+
+            let iconHtml = getCardIcon(card.value);
+            
+            cardDiv.innerHTML = `
+                <div class="card-inner">
+                    <div class="text-xs font-black self-start uppercase px-1 drop-shadow-md">${getCardSymbol(card.value)}</div>
+                    <div class="card-oval">
+                        <span class="text-2xl md:text-3xl font-black ${getTextColorClass(card.color)} drop-shadow-sm">${iconHtml}</span>
+                    </div>
+                    <div class="text-xs font-black self-end uppercase px-1 drop-shadow-md rotate-180">${getCardSymbol(card.value)}</div>
+                </div>
+            `;
+
+            if (isInteractive && onClick) {
+                cardDiv.onclick = onClick;
+            }
+
+            return cardDiv;
+        }
+
+        function getCardBgClass(color) {
+            switch(color) {
+                case 'red': return 'bg-uno-red';
+                case 'blue': return 'bg-uno-blue';
+                case 'green': return 'bg-uno-green';
+                case 'yellow': return 'bg-uno-yellow';
+                default: return 'bg-uno-wild';
+            }
+        }
+
+        function getTextColorClass(color) {
+            switch(color) {
+                case 'red': return 'text-uno-red';
+                case 'blue': return 'text-uno-blue';
+                case 'green': return 'text-uno-green';
+                case 'yellow': return 'text-uno-yellow';
+                default: return 'text-amber-300';
+            }
+        }
+
+        function getCardSymbol(val) {
+            if (val === 'skip') return '⊘';
+            if (val === 'reverse') return '⇄';
+            if (val === 'draw2') return '+2';
+            if (val === 'wild') return '★';
+            if (val === 'wild4') return '+4';
+            return val;
+        }
+
+        function getCardIcon(val) {
+            if (val === 'skip') return '<i class="fa-solid fa-ban"></i>';
+            if (val === 'reverse') return '<i class="fa-solid fa-rotate"></i>';
+            if (val === 'draw2') return '+2';
+            if (val === 'wild') return '<i class="fa-solid fa-palette"></i>';
+            if (val === 'wild4') return '+4';
+            return val;
+        }
+
+        function updateUI() {
+            // Player Hand
+            const playerHandEl = document.getElementById('player-hand');
+            playerHandEl.innerHTML = '';
+            playerHand.forEach((card, idx) => {
+                const cardEl = createCardElement(card, currentTurn === 'player' && !isDealing, () => playPlayerCard(idx));
+                if (isValidPlay(card)) {
+                    cardEl.classList.add('ring-2', 'ring-amber-300');
+                } else {
+                    cardEl.style.opacity = '0.85';
+                }
+                playerHandEl.appendChild(cardEl);
+            });
+
+            // Bot Hand
+            const botHandEl = document.getElementById('bot-hand');
+            botHandEl.innerHTML = '';
+            botHand.forEach(() => {
+                const cardBack = document.createElement('div');
+                cardBack.className = 'uno-card card-back transform hover:translate-y-0';
+                cardBack.innerHTML = `<div class="h-full flex items-center justify-center text-amber-400/40 text-xs font-bold">UNO</div>`;
+                botHandEl.appendChild(cardBack);
+            });
+
+            // Card Counts
+            document.getElementById('player-card-count').innerText = playerHand.length;
+            document.getElementById('bot-card-count').innerText = botHand.length;
+
+            // Discard Pile
+            const discardEl = document.getElementById('discard-pile');
+            discardEl.innerHTML = '';
+            if (discardPile.length > 0) {
+                const topCard = discardPile[discardPile.length - 1];
+                const topCardEl = createCardElement(topCard, false);
+                discardEl.appendChild(topCardEl);
+            }
+
+            // Current Active Color Indicator
+            const colorInd = document.getElementById('color-indicator');
+            colorInd.className = `w-12 h-12 rounded-full border-2 border-white/80 shadow-2xl flex items-center justify-center transition-all duration-500 bg-uno-${currentColor}`;
+
+            // Turn Indicator Glow
+            const playerCard = document.getElementById('player-status-card');
+            const botCard = document.getElementById('bot-status-card');
+            const playerTurnInd = document.getElementById('player-turn-indicator');
+            const botTurnInd = document.getElementById('bot-turn-indicator');
+
+            if (currentTurn === 'player') {
+                playerCard.classList.add('active-turn');
+                botCard.classList.remove('active-turn');
+                playerTurnInd.classList.remove('opacity-0');
+                botTurnInd.classList.add('opacity-0');
+            } else {
+                botCard.classList.add('active-turn');
+                playerCard.classList.remove('active-turn');
+                botTurnInd.classList.remove('opacity-0');
+                playerTurnInd.classList.add('opacity-0');
+            }
+
+            document.getElementById('bot-uno-badge').classList.toggle('hidden', botHand.length !== 1);
+        }
+
+        function isValidPlay(card) {
+            if (discardPile.length === 0) return true;
+            const topCard = discardPile[discardPile.length - 1];
+            if (card.color === 'wild') return true;
+            if (card.color === currentColor) return true;
+            if (card.value === topCard.value) return true;
+            return false;
+        }
+
+        function playPlayerCard(index) {
+            if (currentTurn !== 'player' || isDealing) return;
+            const card = playerHand[index];
+
+            if (!isValidPlay(card)) {
+                showToast(translations[currentLang].notValidCard);
+                return;
+            }
+
+            if (playerHand.length === 2 && !playerSaidUno) {
+                showToast(translations[currentLang].unoPenalty);
+                drawCards(playerHand, 2);
+            }
+
+            playerHand.splice(index, 1);
+            discardPile.push(card);
+            audio.playCardSound();
+
+            if (card.color === 'wild') {
+                pendingWildCard = card;
+                document.getElementById('color-picker-modal').classList.remove('hidden');
+                return;
+            } else {
+                currentColor = card.color;
+            }
+
+            checkWinCondition();
+            if (playerHand.length > 0) {
+                handleCardEffect(card);
+            }
+        }
+
+        function selectWildColor(color) {
+            currentColor = color;
+            document.getElementById('color-picker-modal').classList.add('hidden');
+            showToast(translations[currentLang].selectedColor.replace("{color}", getLocalizedColor(color)));
+            
+            const wildCard = pendingWildCard;
+            pendingWildCard = null;
+            
+            checkWinCondition();
+            if (playerHand.length > 0) {
+                handleCardEffect(wildCard);
+            }
+        }
+
+        function handleCardEffect(card) {
+            let skipTurn = false;
+
+            if (card.value === 'skip' || card.value === 'reverse') {
+                skipTurn = true;
+                showToast(currentTurn === 'player' ? translations[currentLang].botSkips : translations[currentLang].playerSkips);
+            } else if (card.value === 'draw2') {
+                skipTurn = true;
+                const victim = currentTurn === 'player' ? botHand : playerHand;
+                drawCards(victim, 2);
+                showToast(currentTurn === 'player' ? translations[currentLang].botTakes2 : translations[currentLang].playerTakes2);
+            } else if (card.value === 'wild4') {
+                skipTurn = true;
+                const victim = currentTurn === 'player' ? botHand : playerHand;
+                drawCards(victim, 4);
+                showToast(currentTurn === 'player' ? translations[currentLang].botTakes4 : translations[currentLang].playerTakes4);
+            }
+
+            if (!skipTurn) {
+                switchTurn();
+            } else {
+                updateUI();
+                if (currentTurn === 'bot') {
+                    setTimeout(botPlayTurn, 1200);
+                }
+            }
+        }
+
+        function switchTurn() {
+            currentTurn = currentTurn === 'player' ? 'bot' : 'player';
+            updateUI();
+
+            if (currentTurn === 'bot') {
+                setTimeout(botPlayTurn, 1200);
+            }
+        }
+
+        function botPlayTurn() {
+            if (currentTurn !== 'bot' || isDealing) return;
+
+            const playableIndices = [];
+            botHand.forEach((card, idx) => {
+                if (isValidPlay(card)) playableIndices.push(idx);
+            });
+
+            if (playableIndices.length > 0) {
+                const choiceIdx = playableIndices[Math.floor(Math.random() * playableIndices.length)];
+                const card = botHand.splice(choiceIdx, 1)[0];
+                discardPile.push(card);
+                audio.playCardSound();
+
+                if (botHand.length === 1) {
+                    botSaidUno = true;
+                    showToast(translations[currentLang].botSaidUno);
+                    audio.playUnoShout();
+                }
+
+                if (card.color === 'wild') {
+                    const colorCounts = { red: 0, blue: 0, green: 0, yellow: 0 };
+                    botHand.forEach(c => { if (c.color !== 'wild') colorCounts[c.color]++; });
+                    currentColor = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] > colorCounts[b] ? a : b);
+                    showToast(translations[currentLang].botSelectedColor.replace("{color}", getLocalizedColor(currentColor)));
+                } else {
+                    currentColor = card.color;
+                }
+
+                checkWinCondition();
+                if (botHand.length > 0) {
+                    handleCardEffect(card);
+                }
+            } else {
+                showToast(translations[currentLang].botDrewCard);
+                drawCards(botHand, 1);
+                const drawnCard = botHand[botHand.length - 1];
+                
+                if (isValidPlay(drawnCard)) {
+                    setTimeout(() => botPlayTurn(), 800);
+                } else {
+                    switchTurn();
+                }
+            }
+        }
+
+        function drawCards(hand, count) {
+            for (let i = 0; i < count; i++) {
+                if (deck.length === 0) {
+                    reshuffleDiscardIntoDeck();
+                }
+                if (deck.length > 0) {
+                    hand.push(deck.pop());
+                }
+            }
+            updateUI();
+        }
+
+        function reshuffleDiscardIntoDeck() {
+            if (discardPile.length <= 1) return;
+            const topCard = discardPile.pop();
+            deck = [...discardPile];
+            discardPile = [topCard];
+            shuffle(deck);
+            showToast(translations[currentLang].deckReshuffled);
+        }
+
+        document.getElementById('draw-deck').onclick = () => {
+            if (currentTurn !== 'player' || isDealing) return;
+            
+            drawCards(playerHand, 1);
+            audio.playCardSound();
+            const drawnCard = playerHand[playerHand.length - 1];
+
+            if (isValidPlay(drawnCard)) {
+                showToast(translations[currentLang].drewValidCard);
+            } else {
+                showToast(translations[currentLang].drewInvalidCard);
+                switchTurn();
+            }
+        };
+
+        document.getElementById('uno-btn').onclick = () => {
+            if (playerHand.length <= 2) {
+                playerSaidUno = true;
+                audio.playUnoShout();
+                showToast(translations[currentLang].unoShoutToast);
+            } else {
+                showToast(translations[currentLang].unoConditionToast);
+            }
+        };
+
+        function checkWinCondition() {
+            if (playerHand.length === 0) {
+                userCoins += 50;
+                document.getElementById('user-coins').innerText = userCoins;
+                document.getElementById('win-coins-amount').innerText = '+50';
+                audio.playWinSound();
+                showModal(translations[currentLang].playerWinTitle, translations[currentLang].playerWinBody);
+            } else if (botHand.length === 0) {
+                document.getElementById('win-coins-amount').innerText = '+0';
+                showModal(translations[currentLang].botWinTitle, translations[currentLang].botWinBody);
+            }
+        }
+
+        function showModal(title, text) {
+            const isPlayerWin = Object.values(translations).some(language => language.playerWinTitle === title);
+            currentModalKeys = isPlayerWin
+                ? { title: 'playerWinTitle', body: 'playerWinBody' }
+                : { title: 'botWinTitle', body: 'botWinBody' };
+            document.getElementById('msg-title').textContent = title;
+            document.getElementById('msg-body').textContent = text;
+            document.getElementById('msg-modal').classList.remove('hidden');
+        }
+
+        function restartGame() {
+            currentModalKeys = null;
+            document.getElementById('msg-modal').classList.add('hidden');
+            startNewGame();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-text').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4');
+            }, 2500);
+        }
+
+        function getLocalizedColor(color) {
+            const key = ({ red: 'colorRed', blue: 'colorBlue', green: 'colorGreen', yellow: 'colorYellow' })[color];
+            return key && translations[currentLang][key] ? translations[currentLang][key] : '';
+        }
+
+
+        function getRussianColor(color) {
+            switch(color) {
+                case 'red': return 'Красный';
+                case 'blue': return 'Синий';
+                case 'green': return 'Зеленый';
+                case 'yellow': return 'Желтый';
+                default: return '';
+            }
+        }
+
+        // Header controls
+        document.getElementById('music-toggle').onclick = () => audio.toggleClassicalBGM();
+        document.getElementById('restart-btn').onclick = () => triggerTransition(() => restartGame());
+
+        // Initial setup on window load
+        window.onload = () => {
+            changeLanguage('ru'); // Default to RU, setting buttons up
+            setTimeout(() => {
+                document.getElementById('game-body').classList.remove('curtains-closed');
+            }, 300);
+        };
+    </script>
+</body>
+</html>
